@@ -5,8 +5,9 @@ import { asyncHandeler } from "../utils/asyncHandeler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { userFindService } from "../services/userService.js";
-
-
+import { options } from "../utils/Option.js";
+import { verifyToken } from "../middlewares/authMiddleware.js";
+verifyToken
 
 // access token and refresh token generate
 const accessTokenRefreshTokeGenerate = async (userId) => {
@@ -83,7 +84,10 @@ const login = asyncHandeler(async (req, res) => {
 	// console.log(logigUser,'pp')
 
 const data = 
-	res.status(200).json(
+	res.status(200)
+	.cookie('accessToken', accessToken,options )
+	.cookie('refreshToken', refreshToken, options)
+	.json(
 		new ApiResponse(200, {
 			email: user.email,
 			_id: user._id,
@@ -95,4 +99,8 @@ const data =
 	)
 	// const token = user.generateAccessToken()
 })
+
+const logout = asyncHandeler(async (req, res) => {})
+
+
 export { register, login } 
