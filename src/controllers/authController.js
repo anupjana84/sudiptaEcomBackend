@@ -86,10 +86,18 @@ const login = asyncHandeler(async (req, res) => {
     const { accessToken, refreshToken } = await accessTokenRefreshTokeGenerate(user._id)
     
     // const logigUser = await User.findById(user._id).select('-password' + '-refreshToken' + '-__v')
-   
+   const userData =JSON.stringify({
+    email: user.email,
+       _id: user._id,
+       role: user.role,
+       name: user.name,
+       accessToken, refreshToken
+
+   })
     res.status(200)
         .cookie('accessToken', accessToken, options)
         .cookie('refreshToken', refreshToken, options)
+        .cookie('user',userData , options)
         .json(
             new ApiResponse(200, {
              email: user.email,
@@ -128,6 +136,14 @@ const refreshTokenAccessTokengenerateAgain =
             res.status(200)
                 .cookie('accessToken', accessToken, options)
                 .cookie('refreshToken', refreshToken, options)
+                .cookie('user', {
+                    email: user.email,
+                       _id: user._id,
+                       role: user.role,
+                       name: user.name,
+                       accessToken, refreshToken
+       
+                   }, options)
                 .json(
                     new ApiResponse(200,{
                         email: user.email,
