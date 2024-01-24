@@ -55,13 +55,13 @@ userShema.pre("save",async function(next){
            email:this.email,
            name:this.name,
         role:this.role},
-        process.env.JWT_SECRET,{expiresIn:process.env.ACCESS_TOKEN_EXPIRY})
+        process.env.ACCESS_TOKEN_SECRET,{expiresIn:process.env.ACCESS_TOKEN_EXPIRY})
 
  }
 userShema.methods.generateRefreshToken=  function(){
  return   jwt.sign(
         {_id:this._id },
-        process.env.JWT_SECRET,{expiresIn:process.env.REFRESH_TOKEN_EXPIRY})
+        process.env.REFRESH_TOKEN_SECRET,{expiresIn:process.env.REFRESH_TOKEN_EXPIRY})
 
  
 }
