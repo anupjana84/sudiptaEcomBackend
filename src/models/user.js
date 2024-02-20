@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import bcrypt from "bcryptjs"
 import jwt from "jsonwebtoken"
 
-export const userShema=mongoose.Schema({
+export const userSchema=mongoose.Schema({
     name:{
         type:String,
         required:true,
@@ -34,7 +34,7 @@ export const userShema=mongoose.Schema({
     timestamps:true
 })
 
-userShema.pre("save",async function(next){ 
+userSchema.pre("save",async function(next){ 
     if(!this.isModified("password")){
         next()
     }
@@ -45,11 +45,11 @@ userShema.pre("save",async function(next){
 
  })
 
- userShema.methods.isPasswordCorrect= async function(password){
+ userSchema.methods.isPasswordCorrect= async function(password){
     return await bcrypt.compare(password,this.password)
 
  }
- userShema.methods.generateAccessToken=  function(){
+ userSchema.methods.generateAccessToken=  function(){
   return  jwt.sign(
         {_id:this._id,
            email:this.email,
@@ -58,11 +58,11 @@ userShema.pre("save",async function(next){
         process.env.ACCESS_TOKEN_SECRET,{expiresIn:process.env.ACCESS_TOKEN_EXPIRY})
 
  }
-userShema.methods.generateRefreshToken=  function(){
+ userSchema.methods.generateRefreshToken=  function(){
  return   jwt.sign(
         {_id:this._id },
         process.env.REFRESH_TOKEN_SECRET,{expiresIn:process.env.REFRESH_TOKEN_EXPIRY})
 
  
 }
-export const User=mongoose.model("User",userShema)
+export const User=mongoose.model("User",userSchema)

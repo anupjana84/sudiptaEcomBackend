@@ -6,9 +6,9 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { userFindService } from "../services/userService.js";
 import { options } from "../utils/Option.js";
-import { verifyToken } from "../middlewares/authMiddleware.js";
+
 import jwt from 'jsonwebtoken'
-import { UserDto } from "../dtos/userDto.js";
+
 
 // access token and refresh token generate
 const accessTokenRefreshTokeGenerate = async (userId) => {
@@ -97,7 +97,7 @@ const login = asyncHandeler(async (req, res) => {
     res.status(200)
         .cookie('accessToken', accessToken, options)
         .cookie('refreshToken', refreshToken, options)
-        .cookie('user',userData , options)
+        
         .json(
             new ApiResponse(200, {
              email: user.email,
@@ -114,36 +114,30 @@ const login = asyncHandeler(async (req, res) => {
 
 
 // access token rotated
-const refreshTokenAccessTokengenerateAgain =
-    asyncHandeler(async (req, res) => {
+const refreshTokenAccessTokengenerateAgain =asyncHandeler(async (req, res) => {
         const cookieToken = req.cookies.refreshToken || req.body.refreshToken
+        console.log(cookieToken)
         if (!cookieToken) {
             throw new ApiError(401, "Unauthorized Request")
         }
         try {
             const decodedToken = jwt.verify(cookieToken, process.env.REFRESH_TOKEN_SECRET)
+            
+            
             const user = await userFindService(decodedToken._id)
             if (!user) {
                 throw new ApiError(401, "Invalid refresh token")
     
             }
-            if (user.refreshToken !== cookieToken) {
+            if (cookieToken!==  user.refreshToken ) {
                 throw new ApiError(401, " Refresh Token Expired")
     
             }
             const { accessToken, refreshToken } = await accessTokenRefreshTokeGenerate(decodedToken._id)
         
             res.status(200)
-                .cookie('accessToken', accessToken, options)
-                .cookie('refreshToken', refreshToken, options)
-                .cookie('user', {
-                    email: user.email,
-                       _id: user._id,
-                       role: user.role,
-                       name: user.name,
-                       accessToken, refreshToken
-       
-                   }, options)
+                .cookie('accessToken', accessToken, )
+                .cookie('refreshToken', refreshToken, )
                 .json(
                     new ApiResponse(200,{
                         email: user.email,
@@ -162,7 +156,30 @@ const refreshTokenAccessTokengenerateAgain =
 
     })
 
-const logout = asyncHandeler(async (req, res) => { })
+    const logoutUser = asyncHandeler(async(req, res) => {
+        await User.findByIdAndUpdate(
+            req.user._id,
+            {
+                $unset: {
+                    refreshToken: 1 // this removes the field from document
+                }
+            },
+            {
+                new: true
+            }
+        )
+    
+        // let options = {
+        //     httpOnly: true,
+        //     secure: true
+        // }
+    
+        return res
+        .status(200)
+        .clearCookie("accessToken", options)
+        .clearCookie("refreshToken", options)
+        .json(new ApiResponse(200, {}, "User logged Out"))
+    })
 
 
-export { register, login, refreshTokenAccessTokengenerateAgain } 
+export { register, login, refreshTokenAccessTokengenerateAgain, logoutUser } 

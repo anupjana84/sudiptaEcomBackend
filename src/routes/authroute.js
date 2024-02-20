@@ -1,6 +1,7 @@
 import  {Router}  from "express";
 
-import { register,login,refreshTokenAccessTokengenerateAgain }
+import { register,login,refreshTokenAccessTokengenerateAgain
+,logoutUser }
  from "../controllers/authController.js";
 import { getAllUser } from "../controllers/admin/userControllerForAdmin.js";
 import { verifyToken } from "../middlewares/authMiddleware.js";
@@ -10,18 +11,14 @@ import { isAdmin } from "../middlewares/adminMiddleware.js";
 
 
 
-const route=Router();
+const router=Router();
 
 
-
-route.route('/register').post(register)
-route.route('/login').post(login)
-route.route('/allUser').get(verifyToken,isAdmin, getAllUser)
-route.route('/refresh').post(refreshTokenAccessTokengenerateAgain)
-
-
-
-
+router.route("/logout").post(verifyToken,  logoutUser)
+router.route('/register').post(register)
+router.route('/login').post(login)
+router.route('/allUser').get(verifyToken, getAllUser)
+router.route('/refresh').get(refreshTokenAccessTokengenerateAgain)
 
 
 
@@ -34,4 +31,8 @@ route.route('/refresh').post(refreshTokenAccessTokengenerateAgain)
 
 
 
-export default route
+
+
+
+
+export default router

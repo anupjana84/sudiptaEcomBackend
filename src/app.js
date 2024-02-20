@@ -5,6 +5,8 @@ import cookieParser from "cookie-parser";
 import authRoute from "./routes/authroute.js";
 import healthRoute from "./routes/healthRoute.js";
 
+import categoryRoute from "./routes/categoryRoute.js";
+
 
 
 
@@ -17,7 +19,7 @@ const corsOption = {
 
 app.use(cors({
     origin: 'http://localhost:5173',
-  credentials: true,
+    credentials: true
 }))
 
 
@@ -29,6 +31,7 @@ app.use(cookieParser());
 
 app.use("/health",healthRoute);
 app.use("/api/v1/auth",authRoute);
+app.use("/api/v1/category", categoryRoute);
 
 
 
