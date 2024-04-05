@@ -15,19 +15,20 @@ const accessTokenRefreshTokeGenerate = async (userId) => {
     try {
         const user = await userFindService(userId)
         
-        if (!user) {
-            throw new ApiError(404, "User not found")
-        }
+        // if (!user) {
+        //     // throw new ApiError(404, "User not found")
+        //    return  res.status(404).json({message:"User not found"})
+        // }
         const accessToken = user.generateAccessToken()
         const refreshToken = user.generateRefreshToken()
 
         user.refreshToken = refreshToken
         await user.save({ validateBeforeSave: false })
-        return { accessToken, refreshToken }
+       return  { accessToken, refreshToken }
 
     } catch (error) {
-        console.log(error)
-        throw new ApiError(500, 'Somthing went wrong accesss token and refresh token generate')
+       
+       return  res.status(500).json({message:"Somthing went wrong accesss token and refresh token generate"})
 
     }
 
@@ -39,6 +40,7 @@ const register = asyncHandeler(async (req, res) => {
     const { name, email, password } = req.body;
     if ([name, email, password].some((field) => field?.trim() === "")) {
         throw new ApiError(400, "All fields are required")
+
     }
     const existedUser = await User.findOne({
         $or: [{ email }, { name }]
@@ -71,30 +73,27 @@ const login = asyncHandeler(async (req, res) => {
     const { email, password } = req.body
     if (!email && !password) {
         throw new ApiError(400, "Invalid Credential")
+        // return res.status(400).json({message:'Invalid Credential'})
+        return res.status(401).json({ message: 'Invalid Credential' });
     }
     
     const user = await User.findOne({ email })
     if (!user) {
         throw new ApiError(400, "Invalid Credential ")
+        return res.status(400).json({message:'Invalid Credential'})
     }
     const isPasswordCorrect = await user.isPasswordCorrect(password)
     
     if (!isPasswordCorrect) {
         throw new ApiError(401, "Invalid Credential ")
+        return res.status(400).json({message:'Invalid Credential'})
     }
     
     const { accessToken, refreshToken } = await accessTokenRefreshTokeGenerate(user._id)
     
     // const logigUser = await User.findById(user._id).select('-password' + '-refreshToken' + '-__v')
-   const userData =JSON.stringify({
-    email: user.email,
-       _id: user._id,
-       role: user.role,
-       name: user.name,
-       accessToken, refreshToken
-
-   })
-    res.status(200)
+   
+   return res.status(200)
         .cookie('accessToken', accessToken, options)
         .cookie('refreshToken', refreshToken, options)
         

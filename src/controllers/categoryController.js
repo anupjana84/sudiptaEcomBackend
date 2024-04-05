@@ -10,7 +10,7 @@ import { asyncHandeler } from "../utils/asyncHandeler.js"
 
 const createCategoryController = asyncHandeler(async (req, res) => {
   const { title } = req.body
-  console.log(title)
+  // console.log(title)
   // return res.status(200).json(title )
 
   if (!title) {
@@ -48,12 +48,12 @@ res.status(200).json(new ApiResponse(200, getCategory, "All Category"))
 
 const deleteCategoryController = asyncHandeler(async (req, res) => {
   const { _id } = req.body
-  const deleteCategory = Category.findOneAndDelete("_id",_id)
-  // if (!deleteCategory) {
-  //   throw new ApiError(404, "Category not found")
-  // }
-  console.log(_id)
-  res.status(200).json(new ApiResponse(200, {}, "Category Deleted"))
+   const deleteCategory =await Category.findByIdAndDelete(_id)
+  if (!deleteCategory) {
+    throw new ApiError(404, "Category not found")
+  }
+  
+  res.status(200).json(new ApiResponse(200, deleteCategory, "Category Deleted"))
 
   
 })
